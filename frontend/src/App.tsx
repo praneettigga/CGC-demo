@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useRef,
   useState,
   type ChangeEvent,
@@ -6,7 +7,9 @@ import {
 } from 'react'
 import { analyzeResume, getAnalysisErrorMessage } from './analysis/analyzeResume'
 import type { ResumeAnalysis } from './analysis/types'
+import { ResumeBuilderPage } from './components/ResumeBuilderPage'
 import { ResultsDashboard } from './components/ResultsDashboard'
+import { ResumeTemplatesPage } from './components/ResumeTemplatesPage'
 import { hasPdfSignature, validatePdf } from './fileValidation'
 import { getExtractionErrorMessage } from './pdfExtractionErrors'
 
@@ -26,6 +29,11 @@ function Brand() {
 }
 
 function App() {
+  const [page, setPage] = useState(() => {
+    if (window.location.hash === '#templates') return 'templates'
+    if (window.location.hash === '#resume-builder') return 'builder'
+    return 'check'
+  })
   const inputRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
   const [resumeText, setResumeText] = useState('')
@@ -33,6 +41,21 @@ function App() {
   const [error, setError] = useState('')
   const [isDragging, setIsDragging] = useState(false)
   const [processState, setProcessState] = useState<ProcessState>('idle')
+
+  useEffect(() => {
+    const updatePage = () => {
+      if (window.location.hash === '#templates') setPage('templates')
+      else if (window.location.hash === '#resume-builder') setPage('builder')
+      else setPage('check')
+    }
+    window.addEventListener('hashchange', updatePage)
+    return () => window.removeEventListener('hashchange', updatePage)
+  }, [])
+
+  function showResumeCheck() {
+    window.location.hash = '#main'
+    setPage('check')
+  }
 
   function resetResume() {
     setSelectedFile(null)
@@ -108,6 +131,14 @@ function App() {
     void chooseFile(event.dataTransfer.files?.[0])
   }
 
+  if (page === 'templates') {
+    return <ResumeTemplatesPage onBack={showResumeCheck} />
+  }
+
+  if (page === 'builder') {
+    return <ResumeBuilderPage />
+  }
+
   if (analysis && selectedFile && resumeText) {
     return (
       <ResultsDashboard
@@ -124,12 +155,15 @@ function App() {
     <div className="app-shell">
       <header className="site-header">
         <Brand />
-        <span className="privacy-badge">
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 3 5.5 5.7v5.8c0 4.1 2.7 7.9 6.5 9.5 3.8-1.6 6.5-5.4 6.5-9.5V5.7L12 3Zm0 3.1 3.8 1.6v3.8c0 2.7-1.5 5.4-3.8 6.7-2.3-1.3-3.8-4-3.8-6.7V7.7L12 6.1Z" />
-          </svg>
-          Private by design
-        </span>
+        <div className="header-actions">
+          <a className="templates-nav-link" href="#templates">Resume templates</a>
+          <span className="privacy-badge">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3 5.5 5.7v5.8c0 4.1 2.7 7.9 6.5 9.5 3.8-1.6 6.5-5.4 6.5-9.5V5.7L12 3Zm0 3.1 3.8 1.6v3.8c0 2.7-1.5 5.4-3.8 6.7-2.3-1.3-3.8-4-3.8-6.7V7.7L12 6.1Z" />
+            </svg>
+            Private by design
+          </span>
+        </div>
       </header>
 
       <main id="main" className="main-content">

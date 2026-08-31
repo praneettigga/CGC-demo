@@ -16,11 +16,65 @@ const extractedResume = `
 
 describe('resume upload screen', () => {
   beforeEach(() => {
+    window.location.hash = ''
     vi.mocked(extractPdfText).mockResolvedValue({
       text: extractedResume,
       pageCount: 1,
     })
     vi.stubGlobal('scrollTo', vi.fn())
+  })
+
+  it('shows curated resume resources on the separate templates page', () => {
+    window.location.hash = '#templates'
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'Start with a resume that is easy to read.' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: "Jake's Resume" })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Effective developer resume' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /build with this template/i })).toHaveAttribute(
+      'href',
+      '#resume-builder',
+    )
+    expect(screen.getByRole('link', { name: /open original template/i })).toHaveAttribute(
+      'href',
+      'https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs',
+    )
+    expect(screen.getByRole('link', { name: /open original writing guide/i })).toHaveAttribute(
+      'href',
+      'https://stackoverflow.blog/2020/11/25/how-to-write-an-effective-developer-resume-advice-from-a-hiring-manager/',
+    )
+  })
+
+  it('opens the Jake resume builder with every standard section', () => {
+    window.location.hash = '#resume-builder'
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: /build a resume that is clear/i })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Contact' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Education' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Experience' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Projects' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Technical skills' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Custom sections' })).toBeInTheDocument()
+  })
+
+  it('updates the live preview and supports custom sections', () => {
+    window.location.hash = '#resume-builder'
+    render(<App />)
+
+    fireEvent.change(screen.getByLabelText(/^Full name/), { target: { value: 'Asha Tigga' } })
+    fireEvent.change(screen.getByLabelText(/^Email/), { target: { value: 'asha@example.com' } })
+    fireEvent.change(screen.getByLabelText('School or university'), { target: { value: 'CGC University' } })
+    fireEvent.click(screen.getByRole('button', { name: /add custom section/i }))
+    fireEvent.change(screen.getByLabelText('Section title'), { target: { value: 'Certifications' } })
+    fireEvent.change(screen.getAllByLabelText('Bullet point 1')[2], { target: { value: 'AWS Cloud Practitioner' } })
+
+    const preview = screen.getByRole('article', { name: 'Live resume preview' })
+    expect(preview).toHaveTextContent('Asha Tigga')
+    expect(preview).toHaveTextContent('asha@example.com')
+    expect(preview).toHaveTextContent('CGC University')
+    expect(preview).toHaveTextContent('Certifications')
+    expect(preview).toHaveTextContent('AWS Cloud Practitioner')
   })
 
   it('accepts a valid PDF', async () => {

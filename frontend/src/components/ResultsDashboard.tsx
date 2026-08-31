@@ -22,9 +22,12 @@ export function ResultsDashboard({
           <span className="brand-mark" aria-hidden="true">CG</span>
           <span>Career Guidance Club</span>
         </a>
-        <button className="secondary-button" type="button" onClick={onReset}>
-          Analyse another resume
-        </button>
+        <div className="dashboard-actions">
+          <a className="templates-nav-link" href="#templates">Resume templates</a>
+          <button className="secondary-button" type="button" onClick={onReset}>
+            Analyse another resume
+          </button>
+        </div>
       </header>
 
       <main id="dashboard-main" className="dashboard-main">
