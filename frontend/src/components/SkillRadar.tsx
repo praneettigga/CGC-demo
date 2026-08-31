@@ -21,6 +21,9 @@ function polygonPoints(radius: number) {
 }
 
 export function SkillRadar({ scores }: SkillRadarProps) {
+  const accessibleSummary = scores
+    .map((item) => `${categoryLabels[item.category]} ${item.score} percent`)
+    .join(', ')
   const scorePoints = scores
     .map((item, index) => {
       const point = pointAt(index, 92 * (item.score / 100))
@@ -34,7 +37,7 @@ export function SkillRadar({ scores }: SkillRadarProps) {
         className="radar-chart"
         viewBox="0 0 300 300"
         role="img"
-        aria-label="Skill coverage by category"
+        aria-label={`Skill coverage by category: ${accessibleSummary}`}
       >
         {[31, 61, 92].map((radius) => (
           <polygon key={radius} points={polygonPoints(radius)} className="radar-grid" />

@@ -38,7 +38,12 @@ export function ResultsDashboard({
         </section>
 
         <section className="score-card dashboard-card" aria-labelledby="score-title">
-          <div className="score-ring" style={scoreStyle}>
+          <div
+            className="score-ring"
+            style={scoreStyle}
+            role="img"
+            aria-label={`Career-readiness score: ${analysis.score} out of 100`}
+          >
             <div>
               <strong>{analysis.score}</strong>
               <span>out of 100</span>
@@ -55,9 +60,18 @@ export function ResultsDashboard({
             </h2>
             <p>{analysis.explanation}</p>
             <div className="signal-list" aria-label="Resume sections found">
-              <span className={analysis.signals.hasProjects ? 'found' : ''}>Projects</span>
-              <span className={analysis.signals.hasExperience ? 'found' : ''}>Experience</span>
-              <span className={analysis.signals.hasEducation ? 'found' : ''}>Education</span>
+              <span
+                className={analysis.signals.hasProjects ? 'found' : ''}
+                aria-label={`Projects ${analysis.signals.hasProjects ? 'found' : 'not found'}`}
+              >Projects</span>
+              <span
+                className={analysis.signals.hasExperience ? 'found' : ''}
+                aria-label={`Experience ${analysis.signals.hasExperience ? 'found' : 'not found'}`}
+              >Experience</span>
+              <span
+                className={analysis.signals.hasEducation ? 'found' : ''}
+                aria-label={`Education ${analysis.signals.hasEducation ? 'found' : 'not found'}`}
+              >Education</span>
             </div>
           </div>
         </section>

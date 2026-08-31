@@ -95,6 +95,12 @@ describe('resume upload screen', () => {
     expect(screen.getByRole('heading', { name: 'Roles matching your resume' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Your 90-day roadmap' })).toBeInTheDocument()
     expect(screen.getByText('student-resume.pdf')).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', { name: /Career-readiness score: \d+ out of 100/ }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('img', { name: /Skill coverage by category: Frontend/ }),
+    ).toBeInTheDocument()
   })
 
   it('clears the result when analysing another resume', async () => {

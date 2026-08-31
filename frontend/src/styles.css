@@ -35,6 +35,7 @@ input {
 
 button {
   cursor: pointer;
+  touch-action: manipulation;
 }
 
 button:disabled {
@@ -546,6 +547,7 @@ footer {
 }
 
 .dashboard-card {
+  min-width: 0;
   padding: 30px;
   border-radius: 22px;
 }
@@ -777,6 +779,7 @@ footer {
 }
 
 .role-card {
+  min-width: 0;
   padding: 24px;
   border-radius: 18px;
 }
@@ -834,6 +837,7 @@ footer {
   color: var(--muted);
   font-size: 0.75rem;
   line-height: 1.45;
+  overflow-wrap: anywhere;
 }
 
 .roadmap-section {
@@ -894,6 +898,7 @@ footer {
   color: var(--muted);
   font-size: 0.8rem;
   line-height: 1.55;
+  overflow-wrap: anywhere;
 }
 
 .dashboard-disclaimer {
@@ -917,6 +922,11 @@ footer {
 }
 
 @media (max-width: 720px) {
+  button,
+  .brand {
+    min-height: 44px;
+  }
+
   .site-header,
   .main-content {
     width: min(100% - 28px, 920px);
@@ -959,6 +969,8 @@ footer {
 
   .drop-zone {
     min-height: 250px;
+    padding-right: 14px;
+    padding-left: 14px;
   }
 
   .expectation-grid {
@@ -975,7 +987,7 @@ footer {
   }
 
   .dashboard-header .secondary-button {
-    min-height: 42px;
+    min-height: 44px;
     padding: 0 13px;
     font-size: 0.78rem;
   }
@@ -1095,6 +1107,7 @@ footer {
 
   .dashboard-intro h1 {
     font-size: 2.15rem;
+    overflow-wrap: anywhere;
   }
 
   .dashboard-header .secondary-button {
@@ -1103,6 +1116,14 @@ footer {
 
   .radar-legend {
     grid-template-columns: 1fr;
+  }
+
+  .selected-file {
+    min-width: 0;
+  }
+
+  .remove-button {
+    min-height: 44px;
   }
 }
 
