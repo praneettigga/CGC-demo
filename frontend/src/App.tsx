@@ -10,6 +10,7 @@ import type { ResumeAnalysis } from './analysis/types'
 import { ResumeBuilderPage } from './components/ResumeBuilderPage'
 import { ResultsDashboard } from './components/ResultsDashboard'
 import { ResumeTemplatesPage } from './components/ResumeTemplatesPage'
+import { SiteHeader } from './components/SiteHeader'
 import { hasPdfSignature, validatePdf } from './fileValidation'
 import { getExtractionErrorMessage } from './pdfExtractionErrors'
 
@@ -17,15 +18,6 @@ type ProcessState = 'idle' | 'checking' | 'extracting'
 
 function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(2)} MB`
-}
-
-function Brand() {
-  return (
-    <a className="brand" href="#main" aria-label="CGC Resume Check home">
-      <span className="brand-mark" aria-hidden="true">CG</span>
-      <span>Career Guidance Club</span>
-    </a>
-  )
 }
 
 function App() {
@@ -132,7 +124,7 @@ function App() {
   }
 
   if (page === 'templates') {
-    return <ResumeTemplatesPage onBack={showResumeCheck} />
+    return <ResumeTemplatesPage />
   }
 
   if (page === 'builder') {
@@ -153,18 +145,7 @@ function App() {
 
   return (
     <div className="app-shell">
-      <header className="site-header">
-        <Brand />
-        <div className="header-actions">
-          <a className="templates-nav-link" href="#templates">Resume templates</a>
-          <span className="privacy-badge">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M12 3 5.5 5.7v5.8c0 4.1 2.7 7.9 6.5 9.5 3.8-1.6 6.5-5.4 6.5-9.5V5.7L12 3Zm0 3.1 3.8 1.6v3.8c0 2.7-1.5 5.4-3.8 6.7-2.3-1.3-3.8-4-3.8-6.7V7.7L12 6.1Z" />
-            </svg>
-            Private by design
-          </span>
-        </div>
-      </header>
+      <SiteHeader activePage="check" onResumeCheck={showResumeCheck} />
 
       <main id="main" className="main-content">
         <section className="intro" aria-labelledby="page-title">

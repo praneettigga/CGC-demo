@@ -28,6 +28,10 @@ describe('resume upload screen', () => {
     window.location.hash = '#templates'
     render(<App />)
 
+    expect(screen.getByRole('navigation', { name: 'Main navigation' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Resume check' })).toHaveAttribute('href', '#main')
+    expect(screen.getByRole('link', { name: 'Build resume' })).toHaveAttribute('href', '#resume-builder')
+    expect(screen.getByRole('link', { name: 'Curated resumes' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('heading', { name: 'Start with a resume that is easy to read.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "Jake's Resume" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Effective developer resume' })).toBeInTheDocument()

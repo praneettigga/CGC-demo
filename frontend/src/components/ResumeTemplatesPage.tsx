@@ -1,4 +1,5 @@
 import { resumeTemplateResources, type ResumeTemplateResource } from '../data/resumeTemplateData'
+import { SiteHeader } from './SiteHeader'
 
 function ResumePreview({ resource }: { resource: ResumeTemplateResource }) {
   const isDeveloper = resource.preview === 'developer'
@@ -29,22 +30,10 @@ function ResumePreview({ resource }: { resource: ResumeTemplateResource }) {
   )
 }
 
-interface ResumeTemplatesPageProps {
-  onBack: () => void
-}
-
-export function ResumeTemplatesPage({ onBack }: ResumeTemplatesPageProps) {
+export function ResumeTemplatesPage() {
   return (
     <div className="app-shell templates-shell">
-      <header className="site-header templates-header">
-        <a className="brand" href="#main" aria-label="CGC Resume Check home">
-          <span className="brand-mark" aria-hidden="true">CG</span>
-          <span>Career Guidance Club</span>
-        </a>
-        <button className="secondary-button templates-back" type="button" onClick={onBack}>
-          Resume check
-        </button>
-      </header>
+      <SiteHeader activePage="templates" />
 
       <main id="templates-main" className="templates-main">
         <section className="templates-intro" aria-labelledby="templates-title">

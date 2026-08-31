@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react'
 import type { ResumeAnalysis } from '../analysis/types'
 import { SkillRadar } from './SkillRadar'
+import { SiteHeader } from './SiteHeader'
 
 interface ResultsDashboardProps {
   analysis: ResumeAnalysis
@@ -17,18 +18,7 @@ export function ResultsDashboard({
 
   return (
     <div className="app-shell dashboard-shell">
-      <header className="site-header dashboard-header">
-        <a className="brand" href="#dashboard-main" aria-label="CGC dashboard home">
-          <span className="brand-mark" aria-hidden="true">CG</span>
-          <span>Career Guidance Club</span>
-        </a>
-        <div className="dashboard-actions">
-          <a className="templates-nav-link" href="#templates">Resume templates</a>
-          <button className="secondary-button" type="button" onClick={onReset}>
-            Analyse another resume
-          </button>
-        </div>
-      </header>
+      <SiteHeader activePage="check" compact onResumeCheck={onReset} />
 
       <main id="dashboard-main" className="dashboard-main">
         <section className="dashboard-intro">

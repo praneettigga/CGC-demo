@@ -17,6 +17,7 @@ import type {
   SkillGroup,
 } from '../resumeBuilder/types'
 import { getResumeLengthWarning, resumeLimits, validateResumeDraft } from '../resumeBuilder/validation'
+import { SiteHeader } from './SiteHeader'
 
 function hasText(value: string) {
   return value.trim().length > 0
@@ -217,13 +218,7 @@ export function ResumeBuilderPage() {
 
   return (
     <div className="app-shell builder-shell">
-      <header className="site-header builder-header">
-        <a className="brand" href="#main" aria-label="CGC Resume Check home">
-          <span className="brand-mark" aria-hidden="true">CG</span>
-          <span>Career Guidance Club</span>
-        </a>
-        <a className="templates-nav-link" href="#templates">Resume templates</a>
-      </header>
+      <SiteHeader activePage="builder" />
 
       <main className="builder-main">
         <section className="builder-intro">
