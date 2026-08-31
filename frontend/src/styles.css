@@ -1651,6 +1651,13 @@ footer {
   text-underline-offset: 3px;
 }
 
+.text-button:disabled,
+.add-entry-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+  text-decoration: none;
+}
+
 .skill-fields {
   grid-template-columns: minmax(130px, 0.35fr) minmax(0, 1fr);
 }
@@ -1701,6 +1708,30 @@ footer {
   background: var(--primary);
   font-size: 0.78rem;
   font-weight: 750;
+}
+
+.generation-status:empty {
+  display: none;
+}
+
+.generation-status p {
+  margin: 0 0 12px;
+  padding: 10px 12px;
+  border-radius: 9px;
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+
+.generation-error {
+  border: 1px solid #ebc4c4;
+  color: var(--error);
+  background: #fff4f4;
+}
+
+.length-warning {
+  border: 1px solid #ead6a7;
+  color: #75560d;
+  background: #fff9e9;
 }
 
 .builder-paper {

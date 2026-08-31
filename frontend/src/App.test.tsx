@@ -1,4 +1,4 @@
-import { fireEvent, render, screen } from '@testing-library/react'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import { beforeEach, vi } from 'vitest'
 import App from './App'
 import { extractPdfText } from './pdfExtraction'
@@ -75,6 +75,37 @@ describe('resume upload screen', () => {
     expect(preview).toHaveTextContent('CGC University')
     expect(preview).toHaveTextContent('Certifications')
     expect(preview).toHaveTextContent('AWS Cloud Practitioner')
+  })
+
+  it('validates the draft before requesting a PDF', () => {
+    window.location.hash = '#resume-builder'
+    render(<App />)
+
+    fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter your full name')
+  })
+
+  it('requests and downloads a PDF for a complete draft', async () => {
+    window.location.hash = '#resume-builder'
+    const fetchMock = vi.fn().mockResolvedValue(new Response(new Blob(['%PDF-1.4']), {
+      status: 200,
+      headers: { 'content-type': 'application/pdf' },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+    Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:resume') })
+    Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() })
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
+    render(<App />)
+
+    fireEvent.change(screen.getByLabelText(/^Full name/), { target: { value: 'Asha Tigga' } })
+    fireEvent.change(screen.getByLabelText(/^Email/), { target: { value: 'asha@example.com' } })
+    fireEvent.change(screen.getByLabelText('School or university'), { target: { value: 'CGC University' } })
+    fireEvent.change(screen.getByLabelText('Degree and subject'), { target: { value: 'B.Tech in Computer Science' } })
+    fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
+
+    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/resume-pdf', expect.objectContaining({ method: 'POST' })))
+    await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled())
   })
 
   it('accepts a valid PDF', async () => {

@@ -1,14 +1,16 @@
 # Career Guidance Club (CGC)
 
-CGC is a student resume-analysis demo. A student chooses a PDF resume and gets
-a career-readiness score, likely roles, skill gaps, and a simple 90-day plan.
+CGC is a student resume-analysis and resume-building demo. A student can analyse
+an existing PDF or complete structured fields to generate Jake's Resume as a
+polished PDF.
 
-The stack is React + TypeScript on Vercel. The demo does not require sign-in,
-Supabase, a database, or file storage. It reads the resume and keeps the result
-only in temporary browser memory.
+The frontend is React + TypeScript on Vercel. Analysis stays in the browser. PDF
+generation uses a same-origin Vercel function and a signed, containerized LaTeX
+compiler on Google Cloud Run. The demo does not require sign-in, Supabase, a
+database, or file storage.
 
-Nothing is saved by CGC. Refreshing the page, closing the tab, or choosing a
-new file clears the resume and analysis.
+Nothing is saved by CGC. Builder data is transmitted only when generating a PDF
+and is deleted with the compiler's temporary working directory.
 
 ## Documentation
 
@@ -18,6 +20,7 @@ new file clears the resume and analysis.
 - [Analysis engine](docs/analysis-engine.md)
 - [Datasets](docs/datasets.md)
 - [API contract](docs/api-contract.md)
+- [Jake's Resume builder](docs/resume-builder.md)
 
 ## Run locally
 
@@ -32,6 +35,7 @@ Run all three checks together with `npm run check`.
 
 ## Vercel setup
 
-Create the Vercel project with `frontend` as its Root Directory. The included
-configuration builds the Vite app into `dist`; this browser-only demo does not
-need environment variables or backend services.
+Create the Vercel project with `frontend` as its Root Directory. For PDF
+generation, deploy `compiler/` to Cloud Run and set `COMPILER_URL` and
+`COMPILER_SIGNING_SECRET` as server-only Vercel variables. See the resume-builder
+document and `compiler/README.md` for the deployment contract.

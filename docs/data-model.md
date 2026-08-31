@@ -9,7 +9,13 @@ and result in memory only.
 | `resumeText` | Extracted PDF text | Until another file is chosen or the page closes |
 | `analysis` | Score, role matches, and roadmap | Until another file is chosen or the page closes |
 | `error` | "This PDF has no readable text" | Until the next attempt |
+| `resumeDraft` | Builder contact, sections, entries, and bullets | Until refresh or tab close |
+| `generationError` | PDF validation or service message | Until the next generation attempt |
 
 Do not use Supabase, a database, localStorage, sessionStorage, cookies, or
 analytics to keep resume-related information. The page starts empty after a
 refresh.
+
+The builder sends `resumeDraft` only during an explicit PDF request. The Vercel
+proxy and Cloud Run compiler process it transiently and must not persist or log
+the request body, generated LaTeX, or PDF.

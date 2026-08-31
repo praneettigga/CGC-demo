@@ -7,6 +7,7 @@ import {
   createResumeDraft,
   createSkillGroup,
 } from '../resumeBuilder/createDraft'
+import { downloadResumePdf, generateResumePdf } from '../resumeBuilder/generatePdf'
 import type {
   CustomSection,
   EducationEntry,
@@ -15,6 +16,7 @@ import type {
   ResumeDraft,
   SkillGroup,
 } from '../resumeBuilder/types'
+import { getResumeLengthWarning, resumeLimits, validateResumeDraft } from '../resumeBuilder/validation'
 
 function hasText(value: string) {
   return value.trim().length > 0
@@ -108,7 +110,7 @@ function BulletEditor({ bullets, onChange }: { bullets: string[]; onChange: (bul
           >×</button>
         </div>
       ))}
-      <button className="text-button" type="button" onClick={() => onChange([...bullets, ''])}>+ Add bullet</button>
+      <button className="text-button" type="button" onClick={() => onChange([...bullets, ''])} disabled={bullets.length >= resumeLimits.bulletsPerEntry}>+ Add bullet</button>
     </div>
   )
 }
@@ -183,6 +185,9 @@ function ResumePreview({ draft }: { draft: ResumeDraft }) {
 
 export function ResumeBuilderPage() {
   const [draft, setDraft] = useState(createResumeDraft)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generationError, setGenerationError] = useState('')
+  const lengthWarning = getResumeLengthWarning(draft)
 
   function updateList<K extends 'education' | 'experience' | 'projects' | 'skills' | 'customSections'>(key: K, value: ResumeDraft[K]) {
     setDraft((current) => ({ ...current, [key]: value }))
@@ -190,6 +195,24 @@ export function ResumeBuilderPage() {
 
   function updateEntry<K extends 'education' | 'experience' | 'projects' | 'skills' | 'customSections'>(key: K, index: number, value: ResumeDraft[K][number]) {
     updateList(key, draft[key].map((entry, entryIndex) => entryIndex === index ? value : entry) as ResumeDraft[K])
+  }
+
+  async function handleDownload() {
+    const errors = validateResumeDraft(draft)
+    if (errors.length) {
+      setGenerationError(errors[0])
+      return
+    }
+    setGenerationError('')
+    setIsGenerating(true)
+    try {
+      const pdf = await generateResumePdf(draft)
+      downloadResumePdf(pdf, draft.contact.fullName)
+    } catch (error) {
+      setGenerationError(error instanceof Error ? error.message : 'Your PDF could not be generated. Please try again.')
+    } finally {
+      setIsGenerating(false)
+    }
   }
 
   return (
@@ -209,7 +232,7 @@ export function ResumeBuilderPage() {
             <h1>Build a resume that is clear, focused, and ready to share.</h1>
             <p>Complete the fields in your own words. Your draft stays in this tab and the preview follows Jake's proven single-column structure.</p>
           </div>
-          <div className="builder-privacy-note"><strong>Private draft</strong><span>Nothing is saved when you refresh or close this page.</span></div>
+          <div className="builder-privacy-note"><strong>Private draft</strong><span>Nothing is saved. PDF generation securely sends this draft to a temporary compiler, then discards it.</span></div>
         </section>
 
         <div className="builder-workspace">
@@ -235,7 +258,7 @@ export function ResumeBuilderPage() {
                   <Field label="Dates" value={entry.dates} onChange={(dates) => updateEntry('education', index, { ...entry, dates })} placeholder="Aug. 2022 - May 2026" />
                 </div>
               </div>)}
-              <button className="add-entry-button" type="button" onClick={() => updateList('education', [...draft.education, createEducation()])}>+ Add education</button>
+              <button className="add-entry-button" type="button" onClick={() => updateList('education', [...draft.education, createEducation()])} disabled={draft.education.length >= resumeLimits.education}>+ Add education</button>
             </BuilderSection>
 
             <BuilderSection title="Experience" description="Use evidence: what you did, how you did it, and what changed.">
@@ -249,7 +272,7 @@ export function ResumeBuilderPage() {
                 </div>
                 <BulletEditor bullets={entry.bullets} onChange={(bullets) => updateEntry('experience', index, { ...entry, bullets })} />
               </div>)}
-              <button className="add-entry-button" type="button" onClick={() => updateList('experience', [...draft.experience, createExperience()])}>+ Add experience</button>
+              <button className="add-entry-button" type="button" onClick={() => updateList('experience', [...draft.experience, createExperience()])} disabled={draft.experience.length >= resumeLimits.experience}>+ Add experience</button>
             </BuilderSection>
 
             <BuilderSection title="Projects" description="Choose projects that show relevant skills, ownership, and outcomes.">
@@ -262,7 +285,7 @@ export function ResumeBuilderPage() {
                 </div>
                 <BulletEditor bullets={entry.bullets} onChange={(bullets) => updateEntry('projects', index, { ...entry, bullets })} />
               </div>)}
-              <button className="add-entry-button" type="button" onClick={() => updateList('projects', [...draft.projects, createProject()])}>+ Add project</button>
+              <button className="add-entry-button" type="button" onClick={() => updateList('projects', [...draft.projects, createProject()])} disabled={draft.projects.length >= resumeLimits.projects}>+ Add project</button>
             </BuilderSection>
 
             <BuilderSection title="Technical skills" description="Group related tools and use the names recruiters will recognise.">
@@ -273,7 +296,7 @@ export function ResumeBuilderPage() {
                   <Field label="Skills" value={entry.skills} onChange={(skills) => updateEntry('skills', index, { ...entry, skills })} placeholder="Java, Python, SQL, JavaScript" />
                 </div>
               </div>)}
-              <button className="add-entry-button" type="button" onClick={() => updateList('skills', [...draft.skills, createSkillGroup()])}>+ Add skill group</button>
+              <button className="add-entry-button" type="button" onClick={() => updateList('skills', [...draft.skills, createSkillGroup()])} disabled={draft.skills.length >= resumeLimits.skills}>+ Add skill group</button>
             </BuilderSection>
 
             <BuilderSection title="Custom sections" description="Add concise sections such as Certifications, Leadership, or Achievements.">
@@ -282,17 +305,23 @@ export function ResumeBuilderPage() {
                 <Field label="Section title" value={entry.title} onChange={(title) => updateEntry('customSections', index, { ...entry, title })} placeholder="Certifications" />
                 <BulletEditor bullets={entry.bullets} onChange={(bullets) => updateEntry('customSections', index, { ...entry, bullets })} />
               </div>)}
-              <button className="add-entry-button" type="button" onClick={() => updateList('customSections', [...draft.customSections, createCustomSection()])}>+ Add custom section</button>
+              <button className="add-entry-button" type="button" onClick={() => updateList('customSections', [...draft.customSections, createCustomSection()])} disabled={draft.customSections.length >= resumeLimits.customSections}>+ Add custom section</button>
             </BuilderSection>
           </form>
 
           <aside className="builder-preview-panel">
             <div className="preview-toolbar">
               <div><span>Live preview</span><small>Jake's Resume layout</small></div>
-              <button type="button" disabled title="PDF compilation will be connected in the next implementation milestone">Download PDF</button>
+              <button type="button" onClick={() => void handleDownload()} disabled={isGenerating}>
+                {isGenerating ? 'Generating...' : 'Download PDF'}
+              </button>
+            </div>
+            <div className="generation-status" aria-live="polite">
+              {generationError && <p className="generation-error" role="alert">{generationError}</p>}
+              {lengthWarning && <p className="length-warning">{lengthWarning}</p>}
             </div>
             <ResumePreview draft={draft} />
-            <p className="preview-footnote">PDF download will be connected to the secure compiler service in the next milestone.</p>
+            <p className="preview-footnote">Your resume is sent only when you choose Download PDF and is not stored by CGC.</p>
           </aside>
         </div>
       </main>
