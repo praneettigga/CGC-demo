@@ -18,3 +18,13 @@ new file clears the resume and analysis.
 - [Analysis engine](docs/analysis-engine.md)
 - [Datasets](docs/datasets.md)
 - [API contract](docs/api-contract.md)
+
+## Run locally
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Use `npm run test`, `npm run lint`, and `npm run build` to verify the app.
