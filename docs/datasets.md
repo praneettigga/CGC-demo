@@ -1,36 +1,26 @@
-# Datasets and content governance
+# Demo data
 
-## Recommended starting source
+Use a small handwritten list instead of importing a large dataset.
 
-Use the European Commission's ESCO skills and occupations data as the initial
-vocabulary and occupation reference. Import only the fields needed for CGC:
-skill label, aliases, skill URI, occupation label, and relationships. Keep the
-source version and licence/attribution with the import script and in the admin
-documentation.
+## Roles
 
-ESCO is a starting point, not the product's final recommendation system. A
-club-curated layer maps broad ESCO terms to the six dashboard categories,
-chooses a practical set of student-facing roles, sets weights, and chooses
-learning resources. This keeps results useful for the club's curriculum.
+Start with these roles:
 
-## Seed scope for v1
+- Frontend Developer
+- Backend Developer
+- Full-Stack Developer
+- Data Analyst
+- Cloud Engineer
 
-- 6–10 target roles, such as frontend developer, backend developer, full-stack
-  developer, data analyst, cloud engineer, and QA engineer.
-- About 80–150 canonical technical skills with aliases (for example, `JS` and
-  `JavaScript` map to one skill).
-- 3–8 weighted skills per role, including a mix of foundational and advanced
-  skills.
-- A small, reviewed resource catalog; do not present search-engine results as
-  endorsed learning material.
+For each role, add 4–6 important skills. Keep the total list to about 20–30
+skills. For example, JavaScript, React, Node.js, Python, SQL, PostgreSQL,
+Docker, Git, AWS, and Excel.
 
-## Import and review process
+Group each skill into one of six dashboard areas: frontend, backend, databases,
+cloud, DevOps, or AI/ML.
 
-1. Keep raw downloaded source files outside browser-accessible assets.
-2. Run a repeatable import/normalization script that produces seed data.
-3. A club admin reviews aliases, categories, role weights, and resource links.
-4. Publish a new `knowledge_version` when the curated data changes.
-5. Keep prior versions so existing analysis snapshots remain interpretable.
+Add a few trusted learning links only if time allows. The role and skill list
+should live in a TypeScript file in the app. It does not need an admin panel,
+a database, or an ESCO import.
 
-Never use personal resumes to create a dataset, train a model, or improve a
-provider without the student’s explicit, separate opt-in.
+Never use student resumes to train an AI model.

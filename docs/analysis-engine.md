@@ -1,76 +1,39 @@
 # Analysis engine
 
-## Principle
+The browser extracts readable text from the PDF and uses simple fixed rules to
+find skills, projects, education, and experience. The app does not send the
+resume to an AI provider, train an AI model, or make hiring decisions.
 
-AI is used only as an extraction and normalization assistant. Scores and
-recommendations are deterministic, versioned, and explainable from stored
-resume evidence plus role-profile data. CGC does not train a model or infer
-protected characteristics.
+## Simple scoring
 
-## Input contract
+Start with a score of 0:
 
-The validated extraction schema contains `skills`, `education`, `projects`,
-`experience`, and `certifications`. Each skill has a canonical id after alias
-normalization and zero or more evidence references (project, experience, or
-certification). Unknown skills are retained as text for review but do not gain
-an arbitrary category score.
+- Add points for recognised skills.
+- Add points for projects, internships, or relevant experience.
+- Add a small amount for relevant education or certifications.
+- Keep the final score between 0 and 100.
 
-## Score calculation
+Show a short reason with the score, such as “Good backend skills and two
+projects; add Docker and cloud deployment experience.”
 
-All component scores are clamped to 0–100. Start with transparent weights and
-adjust them only by releasing a new `algorithm_version`:
+## Role matches
 
-| Component | Weight | Evidence |
-| --- | ---: | --- |
-| Relevant skills | 40% | Coverage and importance against the student's best-matching roles |
-| Projects | 25% | Complete, relevant projects with described contribution/outcome |
-| Experience | 20% | Relevant internships, work, or substantial responsibility |
-| Certifications / education | 10% | Relevant verified or clearly stated credentials |
-| Resume quality | 5% | Parsable sections and specific evidence; never grammar or writing style alone |
-
-`readiness_score = round(sum(component_score * weight))`. The dashboard shows
-the component explanations so a score never appears as unexplained AI output.
-
-## Role matching
-
-For each active role, calculate weighted coverage:
+Each role has a short list of required skills.
 
 ```text
-role_match = 100 * sum(weight of matched required skills) / sum(all required skill weights)
+role match = matched role skills / total role skills × 100
 ```
 
-Add a small, capped evidence bonus (maximum five points) when a matching skill
-is supported by a relevant project, experience, or certification. Return the
-top three roles and list the highest-impact missing skills. Do not claim that a
-percentage is a hiring probability; it is a profile-to-role fit indicator.
+Show the best three roles and the missing skills for each role. A match score is
+only a profile-fit indicator, not a hiring probability.
 
-## Skill profile and strongest skills
+## Dashboard data
 
-Map canonical skills into six categories: frontend, backend, databases, cloud,
-DevOps, and AI/ML. A category score is weighted evidence coverage, normalized
-to 0–100 for the radar chart. A strongest-skill score combines role importance
-and evidence count/type, then returns the top five with proof links to the
-parsed resume sections.
+- Group matched skills into frontend, backend, databases, cloud, DevOps, and AI/ML.
+- Show the five strongest recognised skills.
+- Recommend up to three missing skills.
+- Make a simple roadmap: learn, build a small project, then polish and deploy it.
 
-## Recommendations and roadmap
-
-Rank missing skills by: (1) importance in the student’s top roles, (2) number
-of top roles affected, and (3) prerequisite order. Recommend no more than
-three high-impact skills at a time. Create a realistic 90-day roadmap:
-
-- Days 1–30: one foundation skill plus a small exercise.
-- Days 31–60: apply it in a portfolio project or feature.
-- Days 61–90: polish, document, deploy, and update the resume.
-
-Each step points to a curated `learning_resources` record where available. The
-result says “suggested next steps”, not a guarantee of employment.
-
-## Quality controls
-
-- Validate provider JSON against a server-side schema; reject missing or
-  fabricated URLs, dates, and credentials.
-- Maintain a small club-reviewed set of sample resumes and expected results.
-- Test boundary cases: empty resume, image-only PDF, duplicate skills,
-  unrelated skills, and no matching role.
-- Log algorithm and knowledge versions; reanalyse only on a deliberate student
-  request or released scoring version.
+If PDF reading fails or no skills are found, show a clear message and let the
+student try another PDF. Keep all extracted text and analysis only in temporary
+React state.

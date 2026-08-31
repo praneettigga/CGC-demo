@@ -1,77 +1,29 @@
 # Features
 
-## Resume Upload & Parsing
+## Demo flow
 
-* Upload a student resume in PDF format.
-* Extract structured information such as:
+1. Student chooses a PDF resume.
+2. CGC reads the PDF in the browser.
+3. CGC creates a temporary analysis in the browser.
+4. Student sees their dashboard.
 
-  * Skills
-  * Education
-  * Projects
-  * Experience
-  * Certifications
+No sign-in is required. The PDF and analysis are never stored and disappear on
+refresh, tab close, or when another file is chosen.
 
-## AI Career Analysis
+## Dashboard
 
-The parsed resume data is analyzed to generate personalized career insights.
+The dashboard shows:
 
-### Career Readiness Score
+- A career-readiness score out of 100, with a short explanation.
+- Up to three matching roles, such as Backend Developer or Data Analyst.
+- A radar chart for frontend, backend, databases, cloud, DevOps, and AI/ML skills.
+- Strongest skills and up to three recommended skills.
+- A 90-day roadmap: learn, build, and polish.
 
-* Overall score out of 100.
-* Represents how strong the student's current profile is based on skills, projects, experience, and resume quality.
+## Not part of the demo
 
-### Career Role Matches
-
-* Identifies roles that best match the student's profile.
-* Example:
-
-  * Backend Developer — 86%
-  * Full Stack Developer — 78%
-  * Cloud Engineer — 61%
-
-### Skill Profile
-
-* Groups skills into areas such as:
-
-  * Frontend
-  * Backend
-  * Databases
-  * Cloud
-  * DevOps
-  * AI/ML
-* Displayed using visual charts such as a radar chart.
-
-### Strongest Skills
-
-* Identifies the student's strongest technical skills.
-* Scores them based on evidence from projects, experience, and certifications.
-
-### Recommended Skills
-
-* Suggests important skills the student should learn next.
-* Recommendations are based on their current profile and target career paths.
-* Skills can be categorized by priority or expected impact.
-
-### Career Roadmap
-
-* Generates a simple personalized 90-day learning roadmap.
-* Suggests skills, projects, and areas to focus on next.
-
-## Interactive Career Dashboard
-
-The analysis is presented through an animated visual dashboard containing:
-
-* Career Readiness gauge
-* Career role match bars
-* Skill radar chart
-* Strongest skills
-* Skill-gap recommendations
-* Personalized career roadmap
-
-## Future Enhancements
-
-* Compare resumes against live job listings.
-* Analyse current market demand for different skills.
-* Compare the student's profile against specific job descriptions.
-* Show how learning a new skill could improve career-role matches.
-* Integrate standardized skill datasets such as ESCO.
+- Live job listings or market data.
+- Comparing a resume to a job description.
+- Resume history and re-analysis.
+- Admin dashboards, large dataset imports, and custom AI training.
+- Sign-in, databases, file uploads, and stored user information.

@@ -1,12 +1,14 @@
 # Career Guidance Club (CGC)
 
-CGC is a student-facing resume analysis dashboard. Students upload a PDF resume
-and receive explainable career-readiness, role-fit, skill-gap, and 90-day
-learning recommendations.
+CGC is a student resume-analysis demo. A student chooses a PDF resume and gets
+a career-readiness score, likely roles, skill gaps, and a simple 90-day plan.
 
-The planned stack is React + TypeScript on Vercel, with Supabase for Auth,
-Postgres, private resume storage, and Edge Functions. It uses curated datasets
-and a managed extraction API where needed; it does not train custom AI models.
+The stack is React + TypeScript on Vercel. The demo does not require sign-in,
+Supabase, a database, or file storage. It reads the resume and keeps the result
+only in temporary browser memory.
+
+Nothing is saved by CGC. Refreshing the page, closing the tab, or choosing a
+new file clears the resume and analysis.
 
 ## Documentation
 
@@ -16,6 +18,3 @@ and a managed extraction API where needed; it does not train custom AI models.
 - [Analysis engine](docs/analysis-engine.md)
 - [Datasets](docs/datasets.md)
 - [API contract](docs/api-contract.md)
-- [Security and privacy](docs/security-and-privacy.md)
-- [Deployment](docs/deployment.md)
-- [Implementation plan](docs/implementation-plan.md)
