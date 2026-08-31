@@ -4,13 +4,12 @@ CGC is a student resume-analysis and resume-building demo. A student can analyse
 an existing PDF or complete structured fields to generate Jake's Resume as a
 polished PDF.
 
-The frontend is React + TypeScript on Vercel. Analysis stays in the browser. PDF
-generation uses a same-origin Vercel function and a signed, containerized LaTeX
-compiler on Google Cloud Run. The demo does not require sign-in, Supabase, a
+The frontend is React + TypeScript on Vercel. Analysis and PDF generation stay
+in the browser. The demo does not require sign-in, Supabase, a backend, a
 database, or file storage.
 
-Nothing is saved by CGC. Builder data is transmitted only when generating a PDF
-and is deleted with the compiler's temporary working directory.
+Nothing is saved or transmitted by CGC. Builder data is used only in the
+browser to create the downloaded PDF.
 
 ## Documentation
 
@@ -35,7 +34,5 @@ Run all three checks together with `npm run check`.
 
 ## Vercel setup
 
-Create the Vercel project with `frontend` as its Root Directory. For PDF
-generation, deploy `compiler/` to Cloud Run and set `COMPILER_URL` and
-`COMPILER_SIGNING_SECRET` as server-only Vercel variables. See the resume-builder
-document and `compiler/README.md` for the deployment contract.
+Create the Vercel project with `frontend` as its Root Directory. No environment
+variables or backend service are required for PDF downloads.

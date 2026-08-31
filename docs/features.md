@@ -16,8 +16,8 @@ refresh, tab close, or when another file is chosen.
 2. Student completes structured contact, education, experience, project,
    technical-skill, and optional custom-section fields.
 3. CGC shows a live single-column preview and writing guidance.
-4. Student requests a PDF. A temporary compiler creates the Jake-template PDF,
-   returns it, and deletes its working files.
+4. Student requests a PDF. The browser creates and downloads the resume without
+   sending the draft to a server.
 
 Builder drafts are not stored and no AI rewrites student content.
 

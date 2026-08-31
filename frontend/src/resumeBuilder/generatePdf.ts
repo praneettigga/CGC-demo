@@ -1,26 +1,185 @@
 import type { ResumeDraft } from './types'
 
-export async function generateResumePdf(draft: ResumeDraft) {
-  const response = await fetch('/api/resume-pdf', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(draft),
-  })
-  if (!response.ok) {
-    let message = 'Your PDF could not be generated. Please try again.'
-    try {
-      const body = await response.json() as { error?: string; details?: string[] }
-      if (body.details?.length) message = body.details[0]
-      else if (body.error === 'RATE_LIMITED') message = 'Too many PDF requests. Please wait a minute and try again.'
-      else if (body.error === 'COMPILER_UNAVAILABLE') message = 'The PDF service is temporarily unavailable. Please try again shortly.'
-    } catch {
-      // Use the safe generic message when the service returns a non-JSON error.
+const PAGE_WIDTH = 612
+const PAGE_HEIGHT = 792
+const LEFT_MARGIN = 54
+const RIGHT_MARGIN = 558
+const TOP_MARGIN = 738
+const BOTTOM_MARGIN = 54
+const LINE_HEIGHT = 13
+
+function hasText(value: string) {
+  return value.trim().length > 0
+}
+
+// Built-in PDF fonts have a limited character set. This keeps files readable
+// without loading a font or calling a server.
+function pdfText(value: string) {
+  return value
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[\u2018\u2019]/g, "'")
+    .replace(/[\u201C\u201D]/g, '"')
+    .replace(/[\u2013\u2014]/g, '-')
+    .replace(/[^\x20-\x7e]/g, '?')
+    .replace(/[\\()]/g, '\\$&')
+}
+
+function wrap(value: string, maxCharacters: number) {
+  const words = value.trim().split(/\s+/).filter(Boolean)
+  const lines: string[] = []
+  let line = ''
+  for (const word of words) {
+    if (`${line} ${word}`.trim().length <= maxCharacters) line = `${line} ${word}`.trim()
+    else {
+      if (line) lines.push(line)
+      line = word
     }
-    throw new Error(message)
   }
-  const contentType = response.headers.get('content-type') ?? ''
-  if (!contentType.startsWith('application/pdf')) throw new Error('The PDF service returned an unexpected response.')
-  return response.blob()
+  if (line) lines.push(line)
+  return lines
+}
+
+function estimatedWidth(value: string, size: number) {
+  return Math.min(value.length * size * 0.5, RIGHT_MARGIN - LEFT_MARGIN)
+}
+
+class PdfWriter {
+  private pages: string[][] = [[]]
+  private y = TOP_MARGIN
+
+  private get page() {
+    return this.pages[this.pages.length - 1]
+  }
+
+  private newPage() {
+    this.pages.push([])
+    this.y = TOP_MARGIN
+  }
+
+  private space(lines = 1) {
+    if (this.y - lines * LINE_HEIGHT < BOTTOM_MARGIN) this.newPage()
+  }
+
+  text(value: string, x = LEFT_MARGIN, size = 10, font = 'F1') {
+    this.space()
+    this.page.push(`BT /${font} ${size} Tf ${x.toFixed(1)} ${this.y.toFixed(1)} Td (${pdfText(value)}) Tj ET`)
+    this.y -= LINE_HEIGHT
+  }
+
+  centered(value: string, size: number, font = 'F1') {
+    const x = Math.max(LEFT_MARGIN, (PAGE_WIDTH - estimatedWidth(value, size)) / 2)
+    this.text(value, x, size, font)
+  }
+
+  pair(left: string, right: string, secondLeft = '') {
+    this.space(secondLeft ? 2 : 1)
+    const baseline = this.y
+    this.page.push(`BT /F2 10 Tf ${LEFT_MARGIN} ${baseline.toFixed(1)} Td (${pdfText(left)}) Tj ET`)
+    if (right) {
+      const x = Math.max(LEFT_MARGIN + 260, RIGHT_MARGIN - estimatedWidth(right, 10))
+      this.page.push(`BT /F1 10 Tf ${x.toFixed(1)} ${baseline.toFixed(1)} Td (${pdfText(right)}) Tj ET`)
+    }
+    this.y -= LINE_HEIGHT
+    if (secondLeft) this.text(secondLeft)
+  }
+
+  section(title: string) {
+    this.space(2)
+    this.page.push(`BT /F2 11 Tf ${LEFT_MARGIN} ${this.y.toFixed(1)} Td (${pdfText(title.toUpperCase())}) Tj ET`)
+    this.y -= 5
+    this.page.push(`${LEFT_MARGIN} ${this.y.toFixed(1)} m ${RIGHT_MARGIN} ${this.y.toFixed(1)} l S`)
+    this.y -= 12
+  }
+
+  bullet(value: string) {
+    const lines = wrap(value, 92)
+    this.space(lines.length)
+    lines.forEach((line, index) => this.text(`${index === 0 ? '-  ' : '   '}${line}`, LEFT_MARGIN + 8))
+  }
+
+  gap() {
+    this.y -= 4
+  }
+
+  toBlob() {
+    const objects: string[] = []
+    const pageObjectNumbers = this.pages.map((_, index) => 5 + index * 2)
+    objects[0] = '<< /Type /Catalog /Pages 2 0 R >>'
+    objects[1] = `<< /Type /Pages /Kids [${pageObjectNumbers.map((number) => `${number} 0 R`).join(' ')}] /Count ${this.pages.length} >>`
+    objects[2] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>'
+    objects[3] = '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold >>'
+
+    this.pages.forEach((commands, index) => {
+      const content = commands.join('\n')
+      const pageNumber = pageObjectNumbers[index]
+      const contentNumber = pageNumber + 1
+      objects[pageNumber - 1] = `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${PAGE_WIDTH} ${PAGE_HEIGHT}] /Resources << /Font << /F1 3 0 R /F2 4 0 R >> >> /Contents ${contentNumber} 0 R >>`
+      objects[contentNumber - 1] = `<< /Length ${content.length} >>\nstream\n${content}\nendstream`
+    })
+
+    let pdf = '%PDF-1.4\n%PDF generated by Career Guidance Club\n'
+    const offsets = [0]
+    objects.forEach((object, index) => {
+      offsets.push(pdf.length)
+      pdf += `${index + 1} 0 obj\n${object}\nendobj\n`
+    })
+    const xref = pdf.length
+    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`
+    offsets.slice(1).forEach((offset) => { pdf += `${String(offset).padStart(10, '0')} 00000 n \n` })
+    pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`
+    return new Blob([pdf], { type: 'application/pdf' })
+  }
+}
+
+export function generateResumePdf(draft: ResumeDraft) {
+  const pdf = new PdfWriter()
+  const contactItems = [draft.contact.phone, draft.contact.email, draft.contact.linkedin, draft.contact.github, draft.contact.portfolio].filter(hasText)
+  pdf.centered(draft.contact.fullName, 18, 'F2')
+  if (contactItems.length) pdf.centered(contactItems.join(' | '), 9)
+  pdf.gap()
+
+  const education = draft.education.filter((entry) => hasText(entry.school) || hasText(entry.qualification))
+  if (education.length) {
+    pdf.section('Education')
+    education.forEach((entry) => {
+      pdf.pair(entry.school, entry.dates, [entry.qualification, entry.location].filter(hasText).join(' | '))
+      pdf.gap()
+    })
+  }
+
+  const experience = draft.experience.filter((entry) => hasText(entry.role) || hasText(entry.organisation))
+  if (experience.length) {
+    pdf.section('Experience')
+    experience.forEach((entry) => {
+      pdf.pair(entry.role, entry.dates, [entry.organisation, entry.location].filter(hasText).join(' | '))
+      entry.bullets.filter(hasText).forEach((bullet) => pdf.bullet(bullet))
+      pdf.gap()
+    })
+  }
+
+  const projects = draft.projects.filter((entry) => hasText(entry.name))
+  if (projects.length) {
+    pdf.section('Projects')
+    projects.forEach((entry) => {
+      pdf.pair([entry.name, entry.technologies].filter(hasText).join(' | '), entry.dates)
+      entry.bullets.filter(hasText).forEach((bullet) => pdf.bullet(bullet))
+      pdf.gap()
+    })
+  }
+
+  const skills = draft.skills.filter((entry) => hasText(entry.label) && hasText(entry.skills))
+  if (skills.length) {
+    pdf.section('Technical Skills')
+    skills.forEach((entry) => pdf.text(`${entry.label}: ${entry.skills}`))
+  }
+
+  draft.customSections.filter((section) => hasText(section.title) && section.bullets.some(hasText)).forEach((section) => {
+    pdf.section(section.title)
+    section.bullets.filter(hasText).forEach((bullet) => pdf.bullet(bullet))
+  })
+
+  return pdf.toBlob()
 }
 
 export function downloadResumePdf(pdf: Blob, fullName: string) {

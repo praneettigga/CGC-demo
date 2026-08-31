@@ -86,13 +86,8 @@ describe('resume upload screen', () => {
     expect(screen.getByRole('alert')).toHaveTextContent('Enter your full name')
   })
 
-  it('requests and downloads a PDF for a complete draft', async () => {
+  it('generates and downloads a PDF for a complete draft without a server request', async () => {
     window.location.hash = '#resume-builder'
-    const fetchMock = vi.fn().mockResolvedValue(new Response(new Blob(['%PDF-1.4']), {
-      status: 200,
-      headers: { 'content-type': 'application/pdf' },
-    }))
-    vi.stubGlobal('fetch', fetchMock)
     Object.defineProperty(URL, 'createObjectURL', { configurable: true, value: vi.fn(() => 'blob:resume') })
     Object.defineProperty(URL, 'revokeObjectURL', { configurable: true, value: vi.fn() })
     vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => undefined)
@@ -104,7 +99,6 @@ describe('resume upload screen', () => {
     fireEvent.change(screen.getByLabelText('Degree and subject'), { target: { value: 'B.Tech in Computer Science' } })
     fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }))
 
-    await waitFor(() => expect(fetchMock).toHaveBeenCalledWith('/api/resume-pdf', expect.objectContaining({ method: 'POST' })))
     await waitFor(() => expect(URL.createObjectURL).toHaveBeenCalled())
   })
 

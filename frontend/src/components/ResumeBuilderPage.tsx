@@ -232,7 +232,7 @@ export function ResumeBuilderPage() {
             <h1>Build a resume that is clear, focused, and ready to share.</h1>
             <p>Complete the fields in your own words. Your draft stays in this tab and the preview follows Jake's proven single-column structure.</p>
           </div>
-          <div className="builder-privacy-note"><strong>Private draft</strong><span>Nothing is saved. PDF generation securely sends this draft to a temporary compiler, then discards it.</span></div>
+          <div className="builder-privacy-note"><strong>Private draft</strong><span>Nothing is saved or sent anywhere. Your PDF is created directly in this browser.</span></div>
         </section>
 
         <div className="builder-workspace">
@@ -321,7 +321,7 @@ export function ResumeBuilderPage() {
               {lengthWarning && <p className="length-warning">{lengthWarning}</p>}
             </div>
             <ResumePreview draft={draft} />
-            <p className="preview-footnote">Your resume is sent only when you choose Download PDF and is not stored by CGC.</p>
+            <p className="preview-footnote">Your resume stays in this browser and is not stored by CGC.</p>
           </aside>
         </div>
       </main>

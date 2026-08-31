@@ -14,7 +14,7 @@ score, role matches, skill gaps, and a 90-day plan. There is no sign-in.
 | Resume reading | PDF text extraction in the browser |
 | Analysis | Simple rules in the browser |
 | Resume builder | React state and live HTML preview |
-| PDF generation | Vercel function + signed Cloud Run LaTeX compiler |
+| PDF generation | Browser-generated PDF using built-in PDF fonts |
 
 ## Flow
 
@@ -32,11 +32,8 @@ The PDF text and dashboard result are kept only in React state. They are not
 sent to a database, uploaded to Storage, or saved in localStorage/sessionStorage.
 They disappear when the page refreshes, the tab closes, or a new resume is chosen.
 
-The builder draft also stays in React state. Only a deliberate PDF request sends
-the structured draft to the same-origin Vercel function. That function signs the
-exact JSON body and forwards it to Cloud Run. The compiler validates the model,
-escapes all text into the fixed Jake template, returns the PDF, and removes its
-temporary working directory.
+The builder draft also stays in React state. Choosing Download PDF creates the
+file directly in the browser; the structured draft is never sent to a service.
 
 ## Important rules
 
@@ -44,4 +41,4 @@ temporary working directory.
 - Do not save resume text, the PDF, or analysis results anywhere.
 - Use browser-only rules for resume analysis, so uploaded resume data does not
   leave the student's device.
-- Send builder data only for an explicit PDF request; never log or persist it.
+- Generate builder PDFs in the browser; never log, send, or persist the draft.
