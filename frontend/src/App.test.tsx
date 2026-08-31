@@ -99,7 +99,7 @@ describe('resume upload screen', () => {
       screen.getByRole('img', { name: /Career-readiness score: \d+ out of 100/ }),
     ).toBeInTheDocument()
     expect(
-      screen.getByRole('img', { name: /Skill coverage by category: Frontend/ }),
+      screen.getByRole('img', { name: /Skill coverage by category: Software/ }),
     ).toBeInTheDocument()
   })
 

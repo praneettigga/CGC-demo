@@ -161,8 +161,9 @@ export function ResultsDashboard({
         <section className="dashboard-disclaimer">
           <strong>Keep this result in context.</strong>
           <p>
-            CGC uses a small fixed skill list for learning guidance. It does not
-            assess your potential, make hiring decisions, or save this report.
+            CGC uses a reviewed, versioned engineering skill list for learning
+            guidance. It does not assess your potential, make hiring decisions,
+            or save this report.
           </p>
           <button className="secondary-button" type="button" onClick={onReset}>
             Analyse another resume

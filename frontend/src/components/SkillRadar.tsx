@@ -5,28 +5,29 @@ interface SkillRadarProps {
   scores: CategoryScore[]
 }
 
-function pointAt(index: number, radius: number) {
-  const angle = (Math.PI * 2 * index) / 6 - Math.PI / 2
+function pointAt(index: number, radius: number, count: number) {
+  const angle = (Math.PI * 2 * index) / count - Math.PI / 2
   return {
     x: 150 + Math.cos(angle) * radius,
     y: 150 + Math.sin(angle) * radius,
   }
 }
 
-function polygonPoints(radius: number) {
-  return Array.from({ length: 6 }, (_, index) => {
-    const point = pointAt(index, radius)
+function polygonPoints(radius: number, count: number) {
+  return Array.from({ length: count }, (_, index) => {
+    const point = pointAt(index, radius, count)
     return `${point.x},${point.y}`
   }).join(' ')
 }
 
 export function SkillRadar({ scores }: SkillRadarProps) {
+  const categoryCount = scores.length
   const accessibleSummary = scores
     .map((item) => `${categoryLabels[item.category]} ${item.score} percent`)
     .join(', ')
   const scorePoints = scores
     .map((item, index) => {
-      const point = pointAt(index, 92 * (item.score / 100))
+      const point = pointAt(index, 92 * (item.score / 100), categoryCount)
       return `${point.x},${point.y}`
     })
     .join(' ')
@@ -40,10 +41,10 @@ export function SkillRadar({ scores }: SkillRadarProps) {
         aria-label={`Skill coverage by category: ${accessibleSummary}`}
       >
         {[31, 61, 92].map((radius) => (
-          <polygon key={radius} points={polygonPoints(radius)} className="radar-grid" />
+          <polygon key={radius} points={polygonPoints(radius, categoryCount)} className="radar-grid" />
         ))}
-        {Array.from({ length: 6 }, (_, index) => {
-          const point = pointAt(index, 92)
+        {Array.from({ length: categoryCount }, (_, index) => {
+          const point = pointAt(index, 92, categoryCount)
           return (
             <line
               key={index}
@@ -57,7 +58,7 @@ export function SkillRadar({ scores }: SkillRadarProps) {
         })}
         <polygon points={scorePoints} className="radar-result" />
         {scores.map((item, index) => {
-          const point = pointAt(index, 119)
+          const point = pointAt(index, 119, categoryCount)
           return (
             <text
               key={item.category}
