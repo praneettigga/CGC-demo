@@ -2,7 +2,8 @@ import type {
   TextItem,
   TextMarkedContent,
 } from 'pdfjs-dist/types/src/display/api'
-import { getExtractionErrorMessage, textItemsToString } from './pdfExtraction'
+import { textItemsToString } from './pdfExtraction'
+import { getExtractionErrorMessage } from './pdfExtractionErrors'
 
 function textItem(str: string, hasEOL = false): TextItem {
   return {

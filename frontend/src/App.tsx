@@ -1,20 +1,53 @@
-import { useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import {
+  useRef,
+  useState,
+  type ChangeEvent,
+  type DragEvent,
+} from 'react'
+import { analyzeResume, getAnalysisErrorMessage } from './analysis/analyzeResume'
+import type { ResumeAnalysis } from './analysis/types'
+import { ResultsDashboard } from './components/ResultsDashboard'
 import { hasPdfSignature, validatePdf } from './fileValidation'
+import { getExtractionErrorMessage } from './pdfExtractionErrors'
+
+type ProcessState = 'idle' | 'checking' | 'extracting'
 
 function formatFileSize(size: number) {
   return `${(size / 1024 / 1024).toFixed(2)} MB`
 }
 
+function Brand() {
+  return (
+    <a className="brand" href="#main" aria-label="CGC Resume Check home">
+      <span className="brand-mark" aria-hidden="true">CG</span>
+      <span>Career Guidance Club</span>
+    </a>
+  )
+}
+
 function App() {
   const inputRef = useRef<HTMLInputElement>(null)
   const [selectedFile, setSelectedFile] = useState<File | null>(null)
+  const [resumeText, setResumeText] = useState('')
+  const [analysis, setAnalysis] = useState<ResumeAnalysis | null>(null)
   const [error, setError] = useState('')
   const [isDragging, setIsDragging] = useState(false)
-  const [isChecking, setIsChecking] = useState(false)
+  const [processState, setProcessState] = useState<ProcessState>('idle')
+
+  function resetResume() {
+    setSelectedFile(null)
+    setResumeText('')
+    setAnalysis(null)
+    setError('')
+    setProcessState('idle')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   async function chooseFile(file?: File) {
     setError('')
     setSelectedFile(null)
+    setResumeText('')
+    setAnalysis(null)
 
     if (!file) return
 
@@ -24,7 +57,7 @@ function App() {
       return
     }
 
-    setIsChecking(true)
+    setProcessState('checking')
     try {
       if (!(await hasPdfSignature(file))) {
         setError('This file does not appear to be a valid PDF.')
@@ -35,7 +68,32 @@ function App() {
     } catch {
       setError('This PDF could not be checked. Please choose another file.')
     } finally {
-      setIsChecking(false)
+      setProcessState('idle')
+    }
+  }
+
+  async function handleAnalyse() {
+    if (!selectedFile) return
+
+    setError('')
+    setProcessState('extracting')
+    try {
+      const { extractPdfText } = await import('./pdfExtraction')
+      const extracted = await extractPdfText(selectedFile)
+      setResumeText(extracted.text)
+      setAnalysis(analyzeResume(extracted.text))
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (caughtError) {
+      const isAnalysisError =
+        caughtError instanceof Error &&
+        caughtError.message === 'NO_RECOGNISED_SKILLS'
+      setError(
+        isAnalysisError
+          ? getAnalysisErrorMessage(caughtError)
+          : getExtractionErrorMessage(caughtError),
+      )
+    } finally {
+      setProcessState('idle')
     }
   }
 
@@ -50,13 +108,22 @@ function App() {
     void chooseFile(event.dataTransfer.files?.[0])
   }
 
+  if (analysis && selectedFile && resumeText) {
+    return (
+      <ResultsDashboard
+        analysis={analysis}
+        fileName={selectedFile.name}
+        onReset={resetResume}
+      />
+    )
+  }
+
+  const isBusy = processState !== 'idle'
+
   return (
     <div className="app-shell">
       <header className="site-header">
-        <a className="brand" href="#main" aria-label="CGC Resume Check home">
-          <span className="brand-mark" aria-hidden="true">CG</span>
-          <span>Career Guidance Club</span>
-        </a>
+        <Brand />
         <span className="privacy-badge">
           <svg viewBox="0 0 24 24" aria-hidden="true">
             <path d="M12 3 5.5 5.7v5.8c0 4.1 2.7 7.9 6.5 9.5 3.8-1.6 6.5-5.4 6.5-9.5V5.7L12 3Zm0 3.1 3.8 1.6v3.8c0 2.7-1.5 5.4-3.8 6.7-2.3-1.3-3.8-4-3.8-6.7V7.7L12 6.1Z" />
@@ -78,7 +145,7 @@ function App() {
         <section className="upload-card" aria-labelledby="upload-title">
           <div className="card-heading">
             <div>
-              <p className="step-label">Step 1 of 1</p>
+              <p className="step-label">Private resume check</p>
               <h2 id="upload-title">Choose your resume</h2>
             </div>
             <span className="file-rule">PDF · Max 10 MB</span>
@@ -105,6 +172,7 @@ function App() {
               className="choose-button"
               type="button"
               onClick={() => inputRef.current?.click()}
+              disabled={isBusy}
             >
               Choose PDF
             </button>
@@ -115,14 +183,22 @@ function App() {
               accept="application/pdf,.pdf"
               onChange={handleInputChange}
               aria-label="Choose PDF resume"
+              disabled={isBusy}
             />
           </div>
 
           <div className="status-area" aria-live="polite">
-            {isChecking && (
+            {processState === 'checking' && (
               <div className="status-message checking-message" role="status">
                 <span className="spinner" aria-hidden="true" />
                 <p>Checking your PDF…</p>
+              </div>
+            )}
+
+            {processState === 'extracting' && (
+              <div className="status-message checking-message" role="status">
+                <span className="spinner" aria-hidden="true" />
+                <p>Reading and analysing your resume…</p>
               </div>
             )}
 
@@ -134,22 +210,30 @@ function App() {
             )}
 
             {selectedFile && (
-              <div className="selected-file">
-                <div className="file-icon" aria-hidden="true">PDF</div>
-                <div className="file-details">
-                  <strong>{selectedFile.name}</strong>
-                  <span>{formatFileSize(selectedFile.size)} · Ready for analysis</span>
+              <div className="selected-file-wrap">
+                <div className="selected-file">
+                  <div className="file-icon" aria-hidden="true">PDF</div>
+                  <div className="file-details">
+                    <strong>{selectedFile.name}</strong>
+                    <span>{formatFileSize(selectedFile.size)} · Ready for analysis</span>
+                  </div>
+                  <button
+                    className="remove-button"
+                    type="button"
+                    onClick={resetResume}
+                    aria-label={`Remove ${selectedFile.name}`}
+                    disabled={isBusy}
+                  >
+                    Remove
+                  </button>
                 </div>
                 <button
-                  className="remove-button"
+                  className="analyse-button"
                   type="button"
-                  onClick={() => {
-                    setSelectedFile(null)
-                    setError('')
-                  }}
-                  aria-label={`Remove ${selectedFile.name}`}
+                  onClick={() => void handleAnalyse()}
+                  disabled={isBusy}
                 >
-                  Remove
+                  {processState === 'extracting' ? 'Analysing…' : 'Analyse resume'}
                 </button>
               </div>
             )}
@@ -188,9 +272,7 @@ function App() {
         </section>
       </main>
 
-      <footer>
-        CGC provides learning guidance, not hiring predictions.
-      </footer>
+      <footer>CGC provides learning guidance, not hiring predictions.</footer>
     </div>
   )
 }

@@ -28,3 +28,10 @@ npm run dev
 ```
 
 Use `npm run test`, `npm run lint`, and `npm run build` to verify the app.
+Run all three checks together with `npm run check`.
+
+## Vercel setup
+
+Create the Vercel project with `frontend` as its Root Directory. The included
+configuration builds the Vite app into `dist`; this browser-only demo does not
+need environment variables or backend services.
