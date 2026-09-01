@@ -55,7 +55,12 @@ export function SiteHeader({ activePage, compact = false, onResumeCheck }: SiteH
           onResumeCheck?.()
         }}
       >
-        <span className="brand-mark" aria-hidden="true">CG</span>
+        <span className="brand-mark" aria-hidden="true">
+          <img
+            src="/cgc-logo-cocoa.png"
+            alt=""
+          />
+        </span>
         <span>Career Guidance Club</span>
       </a>
       <button

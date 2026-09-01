@@ -80,15 +80,24 @@ button:disabled {
 }
 
 .brand-mark {
-  display: grid;
+  position: relative;
+  display: block;
+  overflow: hidden;
   width: 42px;
   height: 42px;
-  place-items: center;
   border-radius: 13px;
-  color: #fff;
-  background: var(--primary);
-  font-size: 0.78rem;
-  letter-spacing: -0.03em;
+  background: var(--cream);
+  flex: 0 0 auto;
+}
+
+.brand-mark img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 156px;
+  max-width: none;
+  height: auto;
+  transform: translate(-50%, -50%);
 }
 
 .privacy-badge {
@@ -2108,26 +2117,10 @@ footer {
 }
 
 .brand-mark {
-  position: relative;
   width: 44px;
   height: 44px;
-  border: 1.5px solid var(--ink);
-  border-radius: 14px 12px 15px 10px;
-  color: var(--ink);
+  border-radius: 13px;
   background: var(--cream);
-  box-shadow: 2px 2px 0 var(--ink);
-  font-family: var(--display-font);
-  font-size: 0.76rem;
-  transform: rotate(-3deg);
-}
-
-.brand-mark::after {
-  position: absolute;
-  top: -9px;
-  right: -8px;
-  color: var(--primary);
-  font-size: 15px;
-  content: '✦';
 }
 
 .site-nav {
