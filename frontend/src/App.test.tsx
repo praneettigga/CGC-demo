@@ -24,6 +24,34 @@ describe('resume upload screen', () => {
     vi.stubGlobal('scrollTo', vi.fn())
   })
 
+  it('leads from the landing hero to the private resume checker', () => {
+    render(<App />)
+
+    expect(
+      screen.getByRole('heading', { name: /your resume, finally talking/i }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /check my resume/i })).toHaveAttribute(
+      'href',
+      '#resume-checker',
+    )
+    expect(screen.getByText(/your PDF never leaves this device/i)).toBeInTheDocument()
+  })
+
+  it('provides an accessible mobile navigation menu', () => {
+    render(<App />)
+    const menuButton = screen.getByRole('button', { name: 'Open navigation menu' })
+
+    expect(menuButton).toHaveAttribute('aria-expanded', 'false')
+    fireEvent.click(menuButton)
+    expect(screen.getByRole('button', { name: 'Close navigation menu' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    )
+
+    fireEvent.keyDown(document, { key: 'Escape' })
+    expect(screen.getByRole('button', { name: 'Open navigation menu' })).toHaveFocus()
+  })
+
   it('shows curated resume resources on the separate templates page', () => {
     window.location.hash = '#templates'
     render(<App />)

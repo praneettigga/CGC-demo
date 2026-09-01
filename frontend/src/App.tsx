@@ -8,6 +8,7 @@ import {
 import { analyzeResume, getAnalysisErrorMessage } from './analysis/analyzeResume'
 import type { ResumeAnalysis } from './analysis/types'
 import { ResumeBuilderPage } from './components/ResumeBuilderPage'
+import { LandingHero } from './components/LandingHero'
 import { ResultsDashboard } from './components/ResultsDashboard'
 import { ResumeTemplatesPage } from './components/ResumeTemplatesPage'
 import { SiteHeader } from './components/SiteHeader'
@@ -43,6 +44,31 @@ function App() {
     window.addEventListener('hashchange', updatePage)
     return () => window.removeEventListener('hashchange', updatePage)
   }, [])
+
+  useEffect(() => {
+    if (page !== 'check') return
+
+    const revealItems = document.querySelectorAll<HTMLElement>('[data-reveal]')
+    if (!('IntersectionObserver' in window)) {
+      revealItems.forEach((item) => item.classList.add('is-visible'))
+      return
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible')
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.14 },
+    )
+
+    revealItems.forEach((item) => observer.observe(item))
+    return () => observer.disconnect()
+  }, [page])
 
   function showResumeCheck() {
     window.location.hash = '#main'
@@ -148,20 +174,28 @@ function App() {
       <SiteHeader activePage="check" onResumeCheck={showResumeCheck} />
 
       <main id="main" className="main-content">
-        <section className="intro" aria-labelledby="page-title">
-          <p className="eyebrow">Resume guidance for students</p>
-          <h1 id="page-title">Turn your resume into a clearer career direction.</h1>
-          <p className="intro-copy">
-            Choose your PDF resume to discover your strongest skills, matching
-            roles, and practical next steps—all inside your browser.
-          </p>
+        <LandingHero />
+
+        <section className="promise-strip" aria-label="How CGC works" data-reveal>
+          <p><span>01</span> choose a PDF</p>
+          <span className="promise-arrow" aria-hidden="true">→</span>
+          <p><span>02</span> read in your browser</p>
+          <span className="promise-arrow" aria-hidden="true">→</span>
+          <p><span>03</span> get a clear roadmap</p>
         </section>
 
-        <section className="upload-card" aria-labelledby="upload-title">
+        <section id="resume-checker" className="upload-section" aria-labelledby="upload-title" data-reveal>
+          <div className="upload-intro">
+            <p className="handwritten-note">okay, let’s have a look</p>
+            <h2 id="upload-title">drop in your resume.</h2>
+            <p>The browser reads it here, finds the useful signals, and clears everything when you leave.</p>
+          </div>
+
+          <div className="upload-card">
           <div className="card-heading">
             <div>
               <p className="step-label">Private resume check</p>
-              <h2 id="upload-title">Choose your resume</h2>
+              <h3>Choose your resume</h3>
             </div>
             <span className="file-rule">PDF · Max 10 MB</span>
           </div>
@@ -263,31 +297,55 @@ function App() {
               device and is cleared when you refresh or close the page.
             </p>
           </div>
+          </div>
         </section>
 
-        <section className="expectations" aria-labelledby="expectations-title">
-          <h2 id="expectations-title">What you’ll get</h2>
+        <section className="expectations" aria-labelledby="expectations-title" data-reveal>
+          <div className="section-title-row">
+            <div>
+              <p className="handwritten-note">the useful bits</p>
+              <h2 id="expectations-title">what you’ll get.</h2>
+            </div>
+            <p>No mystery scores. Every result points back to what is actually written in your PDF.</p>
+          </div>
           <div className="expectation-grid">
             <article>
-              <span>01</span>
+              <span className="expectation-number">01</span>
+              <span className="expectation-doodle" aria-hidden="true">◎</span>
               <h3>Readiness score</h3>
               <p>A simple view of how complete your current profile is.</p>
             </article>
             <article>
-              <span>02</span>
+              <span className="expectation-number">02</span>
+              <span className="expectation-doodle" aria-hidden="true">↗</span>
               <h3>Matching roles</h3>
               <p>Career paths that fit the skills already on your resume.</p>
             </article>
             <article>
-              <span>03</span>
+              <span className="expectation-number">03</span>
+              <span className="expectation-doodle" aria-hidden="true">✦</span>
               <h3>90-day roadmap</h3>
               <p>Focused learning and project steps to strengthen your profile.</p>
             </article>
           </div>
         </section>
+
+        <section className="next-step-band" aria-labelledby="next-step-title" data-reveal>
+          <div>
+            <p className="handwritten-note">need a stronger starting point?</p>
+            <h2 id="next-step-title">make the resume you wish you had.</h2>
+          </div>
+          <div className="next-step-actions">
+            <a className="paper-button" href="#resume-builder">build a resume <span aria-hidden="true">→</span></a>
+            <a className="text-link" href="#templates">browse good examples <span aria-hidden="true">↗</span></a>
+          </div>
+        </section>
       </main>
 
-      <footer>CGC provides learning guidance, not hiring predictions.</footer>
+      <footer className="brand-footer">
+        <strong>clearer resumes. calmer career choices.</strong>
+        <span>CGC provides learning guidance, not hiring predictions.</span>
+      </footer>
     </div>
   )
 }
