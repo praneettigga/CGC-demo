@@ -62,7 +62,21 @@ describe('resume upload screen', () => {
     expect(screen.getByRole('link', { name: 'Curated resumes' })).toHaveAttribute('aria-current', 'page')
     expect(screen.getByRole('heading', { name: 'Start with a resume that is easy to read.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "Jake's Resume" })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '70+ ATS Rating Resume' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Off-Campus Resume Template' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Effective developer resume' })).toBeInTheDocument()
+    expect(screen.getByAltText("Preview of Jake's Resume")).toHaveAttribute(
+      'src',
+      '/2026-09-01-093200_hyprshot.png',
+    )
+    expect(screen.getByAltText('Preview of 70+ ATS Rating Resume')).toHaveAttribute(
+      'src',
+      '/2026-09-01-093955_hyprshot.png',
+    )
+    expect(screen.getByAltText('Preview of Off-Campus Resume Template')).toHaveAttribute(
+      'src',
+      '/2026-09-01-094249_hyprshot.png',
+    )
     expect(screen.getByText('One-page technical layout')).toBeInTheDocument()
     expect(screen.getByText('Role-tailored content')).toBeInTheDocument()
     expect(screen.queryByText('Single-column layout')).not.toBeInTheDocument()
@@ -70,9 +84,18 @@ describe('resume upload screen', () => {
       'href',
       '#resume-builder',
     )
-    expect(screen.getByRole('link', { name: /open original template/i })).toHaveAttribute(
+    const originalTemplateLinks = screen.getAllByRole('link', { name: /open original template/i })
+    expect(originalTemplateLinks[0]).toHaveAttribute(
       'href',
       'https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs',
+    )
+    expect(originalTemplateLinks[1]).toHaveAttribute(
+      'href',
+      'https://www.overleaf.com/latex/templates/70-plus-ats-rating-resume-template/ssprfsctyddz',
+    )
+    expect(originalTemplateLinks[2]).toHaveAttribute(
+      'href',
+      'https://www.overleaf.com/latex/templates/off-campus-template/ygwmktvmvhjm',
     )
     expect(screen.getByRole('link', { name: /open original writing guide/i })).toHaveAttribute(
       'href',

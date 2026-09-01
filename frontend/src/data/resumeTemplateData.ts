@@ -9,6 +9,7 @@ export interface ResumeTemplateResource {
   highlights: string[]
   url: string
   preview: 'classic' | 'developer'
+  previewImage?: string
 }
 
 export const resumeTemplateResources: ResumeTemplateResource[] = [
@@ -24,6 +25,35 @@ export const resumeTemplateResources: ResumeTemplateResource[] = [
     highlights: ['Simple one-page structure', 'LaTeX source available', 'MIT licensed'],
     url: 'https://www.overleaf.com/latex/templates/jakes-resume/syzfjbzwjncs',
     preview: 'classic',
+    previewImage: '/2026-09-01-093200_hyprshot.png',
+  },
+  {
+    id: 'ats-rating-resume',
+    type: 'Template',
+    title: '70+ ATS Rating Resume',
+    source: 'Overleaf',
+    description:
+      'A detailed, ATS-friendly LaTeX resume template with clear sections for education, projects, experience, technical skills, and leadership.',
+    bestFor: 'Engineering students who want a structured, content-rich technical resume.',
+    tags: ['ATS-friendly layout', 'Detailed technical sections'],
+    highlights: ['Clear section hierarchy', 'LaTeX source available', 'MIT licensed'],
+    url: 'https://www.overleaf.com/latex/templates/70-plus-ats-rating-resume-template/ssprfsctyddz',
+    preview: 'classic',
+    previewImage: '/2026-09-01-093955_hyprshot.png',
+  },
+  {
+    id: 'off-campus-template',
+    type: 'Template',
+    title: 'Off-Campus Resume Template',
+    source: 'Overleaf',
+    description:
+      'A compact technical resume template with dedicated sections for internships, projects, achievements, coursework, skills, and leadership roles.',
+    bestFor: 'Students applying for off-campus internships and entry-level technical roles.',
+    tags: ['Off-campus applications', 'Achievements and coursework'],
+    highlights: ['Compact one-page format', 'LaTeX source available', 'Project-focused structure'],
+    url: 'https://www.overleaf.com/latex/templates/off-campus-template/ygwmktvmvhjm',
+    preview: 'classic',
+    previewImage: '/2026-09-01-094249_hyprshot.png',
   },
   {
     id: 'effective-developer-resume',

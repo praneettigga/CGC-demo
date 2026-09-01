@@ -3156,6 +3156,20 @@ footer,
   box-shadow: inset -1px 0 0 var(--ink);
 }
 
+.image-resume-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 14px;
+}
+
+.image-resume-preview img {
+  display: block;
+  max-width: 100%;
+  max-height: 400px;
+  border: 1px solid #e6e2df;
+}
+
 .preview-summary {
   border-color: var(--primary);
 }

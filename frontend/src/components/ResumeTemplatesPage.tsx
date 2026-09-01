@@ -2,6 +2,14 @@ import { resumeTemplateResources, type ResumeTemplateResource } from '../data/re
 import { SiteHeader } from './SiteHeader'
 
 function ResumePreview({ resource }: { resource: ResumeTemplateResource }) {
+  if (resource.previewImage) {
+    return (
+      <div className="resume-preview image-resume-preview">
+        <img src={resource.previewImage} alt={`Preview of ${resource.title}`} />
+      </div>
+    )
+  }
+
   const isDeveloper = resource.preview === 'developer'
 
   return (

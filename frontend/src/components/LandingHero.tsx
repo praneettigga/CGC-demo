@@ -44,7 +44,7 @@ export function LandingHero() {
     <section className="landing-hero" aria-labelledby="page-title">
       <div className="hero-copy">
         <p className="eyebrow hero-eyebrow">
-          <span aria-hidden="true">✦</span> private career guidance for students
+          <span aria-hidden="true">✦</span> career guidance for students
         </p>
         <h1 id="page-title">
           your resume,{' '}
