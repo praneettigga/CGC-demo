@@ -46,6 +46,10 @@ function App() {
   }, [])
 
   useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' })
+  }, [page])
+
+  useEffect(() => {
     if (page !== 'check') return
 
     const revealItems = document.querySelectorAll<HTMLElement>('[data-reveal]')

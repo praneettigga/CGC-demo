@@ -32,7 +32,7 @@ html {
 
 body {
   margin: 0;
-  min-width: 320px;
+  min-width: 0;
   min-height: 100vh;
   background: var(--cream);
 }
@@ -3625,10 +3625,10 @@ body {
     top: 70px;
     right: 0;
     display: grid;
-    width: min(270px, calc(100vw - 28px));
+    width: min(224px, calc(100vw - 28px));
     max-width: none;
-    gap: 4px;
-    padding: 8px;
+    gap: 2px;
+    padding: 6px;
     border: 1.5px solid var(--ink);
     border-radius: 16px;
     visibility: hidden;
@@ -3651,12 +3651,12 @@ body {
   .site-nav-link {
     display: flex;
     width: 100%;
-    min-height: 48px;
+    min-height: 44px;
     align-items: center;
     justify-content: space-between;
-    padding: 11px 14px;
-    border-radius: 11px;
-    font-size: 0.9rem;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.84rem;
   }
 
   .site-nav-link::after {
@@ -3680,6 +3680,14 @@ body {
   .hero-actions .paper-button,
   .next-step-actions .paper-button {
     width: 100%;
+  }
+
+  .hero-actions .text-link,
+  .next-step-actions .text-link {
+    display: inline-flex;
+    min-height: 44px;
+    align-items: center;
+    padding: 6px 2px;
   }
 
   .paper-button,
@@ -3904,5 +3912,18 @@ body {
   .roadmap-section {
     padding-right: 14px;
     padding-left: 14px;
+  }
+}
+
+@supports (padding: max(0px)) {
+  @media (max-width: 640px) {
+    .site-header {
+      width: min(
+        calc(100% - 28px - env(safe-area-inset-left) - env(safe-area-inset-right)),
+        var(--page-width)
+      );
+      margin-right: max(14px, env(safe-area-inset-right));
+      margin-left: max(14px, env(safe-area-inset-left));
+    }
   }
 }

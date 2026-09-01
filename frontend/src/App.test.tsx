@@ -63,6 +63,9 @@ describe('resume upload screen', () => {
     expect(screen.getByRole('heading', { name: 'Start with a resume that is easy to read.' })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: "Jake's Resume" })).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'Effective developer resume' })).toBeInTheDocument()
+    expect(screen.getByText('One-page technical layout')).toBeInTheDocument()
+    expect(screen.getByText('Role-tailored content')).toBeInTheDocument()
+    expect(screen.queryByText('Single-column layout')).not.toBeInTheDocument()
     expect(screen.getByRole('link', { name: /build with this template/i })).toHaveAttribute(
       'href',
       '#resume-builder',
@@ -75,6 +78,17 @@ describe('resume upload screen', () => {
       'href',
       'https://stackoverflow.blog/2020/11/25/how-to-write-an-effective-developer-resume-advice-from-a-hiring-manager/',
     )
+  })
+
+  it('returns to the top when navigating to the resume builder', async () => {
+    render(<App />)
+    vi.mocked(window.scrollTo).mockClear()
+
+    window.location.hash = '#resume-builder'
+    window.dispatchEvent(new HashChangeEvent('hashchange'))
+
+    await screen.findByRole('heading', { name: /build a resume that is clear/i })
+    expect(window.scrollTo).toHaveBeenCalledWith({ top: 0, behavior: 'auto' })
   })
 
   it('opens the Jake resume builder with every standard section', () => {

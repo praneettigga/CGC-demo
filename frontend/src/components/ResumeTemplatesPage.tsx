@@ -46,20 +46,13 @@ export function ResumeTemplatesPage() {
           </p>
         </section>
 
-        <section className="templates-principles" aria-label="What makes a strong resume">
-          <span>Single-column layout</span>
-          <span>Relevant evidence first</span>
-          <span>Clear technical skills</span>
-        </section>
-
         <section className="template-grid" aria-label="Resume templates and guides">
           {resumeTemplateResources.map((resource) => (
             <article className="template-card" key={resource.id}>
               <ResumePreview resource={resource} />
               <div className="template-content">
-                <div className="template-meta">
-                  <span>{resource.type}</span>
-                  <span>{resource.source}</span>
+                <div className="template-meta" aria-label={`${resource.title} highlights`}>
+                  {resource.tags.map((tag) => <span key={tag}>{tag}</span>)}
                 </div>
                 <h2>{resource.title}</h2>
                 <p>{resource.description}</p>
